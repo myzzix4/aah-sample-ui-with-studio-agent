@@ -1,0 +1,37 @@
+# AAH Code Deploy Sample #2 — UI + Studio Agent
+# 직접 개발한 UI (Flask). Agent 는 AAH Agent Studio 에서 만든 결과물의 baked ARN 사용.
+apiVersion: aah.dev/v1
+kind: AgentDeployment
+
+metadata:
+  name: aah-sample-ui-with-studio-agent
+  display_name: "샘플 #2 · UI + Studio Agent"
+  description: |
+    삼성생명 데모 홈페이지(Flask). AAH Agent Studio 에서 만든 Agent 의 ARN 을
+    AGENT_RUNTIME_ARN env 로 받아 호출. Power User 가 Studio 로 빌드 + 개발자가
+    UI 만 만드는 협업 패턴.
+  domain: insurance
+  tags: [ui, studio-agent, sample, samsung-life]
+
+services:
+  - id: ui
+    kind: web_service
+    target: app_runner
+    dockerfile: ./services/ui/Dockerfile
+    port: 8000
+    health_path: /healthz
+    requirements:
+      cpu: "0.25 vCPU"
+      memory: "0.5 GB"
+      min_instances: 1
+      max_instances: 4
+
+resources: []
+
+env_by_service:
+  ui:
+    - { name: AGENT_RUNTIME_ARN, default: "" }
+    - { name: AWS_REGION,        default: "us-east-1" }
+    - { name: UI_TITLE,          default: "삼성생명 AI 상담 (Studio Agent)" }
+    - { name: UI_SCENARIO,       default: "샘플 #2 · UI + Studio Agent" }
+    - { name: LOG_LEVEL,         default: "INFO" }
